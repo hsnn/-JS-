@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JS原生轮播</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+</head>
+<style type="text/css">
+	#container{width: 800px;height: 400px;position: relative;margin: 50px auto;overflow: hidden;}
+	#list{width: 5600px;height: 400px;position: absolute;left: 0;}
+	#list span{width: 800px;height: 400px;float: left;}
+	#buttons{width: 200px;height:50px;position: absolute;left:150px;bottom:0;z-index: 9;}
+	#buttons span{width: 20px;height: 20px;border-radius: 10px;background-color: #2a2a2a;cursor:pointer;display: inline-block;}
+	#buttons .on{background-color: #fff}
+	#prev{position: absolute;left: 0;top:48%;cursor: pointer;color: #fff;display: none;}
+	#next{position: absolute;right: 0;top:48%;cursor: pointer;color: #fff;display: none;}
+</style>
+<body>
+<div id=container>
+	<div id="list" style="left: -800px;">
+		<span><img src="img/ft5.png"></span>
+		<span><img src="img/ft1.png"></span>
+		<span><img src="img/ft2.png"></span>
+		<span><img src="img/ft3.png"></span>
+		<span><img src="img/ft4.png"></span>
+		<span><img src="img/ft5.png"></span>
+		<span><img src="img/ft1.png"></span>
+	</div>
+	<div id="buttons">
+		<span index="1" class="on"></span>
+		<span index="2" ></span>
+		<span index="3" ></span>
+		<span index="4" ></span>
+		<span index="5" ></span>
+	</div>
+	<div id="prev" href="javascript:;">&lt</div>
+	<div id="next" href="javascript:;">&gt</div>
+</div>
+
+<script type="text/javascript">
+	var container = document.getElementById('container'),
+		list = document.getElementById('list'),
+		buttons = document.getElementById('buttons').getElementsByTagName('span'),
+		prev = document.getElementById('prev'),
+		next = document.getElementById('next'),
+		index = 1,
+		len = 5,
+		interval = 3000,
+		animated = false,
+		timer;
+	//移动方法	
+	function animate(offset){
+		if(offset == 0)return;//若条件满足，则后面的代码都不执行了
+		animated = true;
+		var time = 150,
+			inter = 5,
+			speed = offset/(time/inter),
+			left = parseInt(list.style.left) + offset;
+		var go = function(){
+			if((speed>0 && parseInt(list.style.left)<left) || (speed<0 && parseInt(list.style.left)>left)){
+				list.style.left = parseInt(list.style.left) + speed + 'px';
+				setTimeout(go,inter);
+			}
+			else{
+				list.style.left = left + 'px';
+				if(left>-800){
+					list.style.left = -800*len + 'px';
+				}
+				if (left<(-800*len)) {
+					list.style.left = '-800px';
+				}
+				animated = false;
+			}
+		} 	
+		go();
+	}	
+	//显示焦点图按钮方法
+	function showButton(){
+		for(var i = 0;i<buttons.length;i++){
+			if(buttons[i].className == 'on'){
+				buttons[i].className = '';
+				break;
+			}
+		}
+		buttons[index-1].className = 'on';
+	}
+	next.onclick = function(){
+		if (animated) {return};
+		if (index == 5) {
+			index = 1;
+		}
+		else{
+			index++
+		}
+		animate(-800);
+		showButton();
+	}
+	prev.onclick = function(){
+		if (animated) {return};
+		if (index == 1) {
+			index = 5
+		}
+		else{
+			index--
+		}
+		animate(800);
+		showButton();
+	}
+	for (var i = 0; i < buttons.length; i++) {
+		buttons[i].onclick = function(){
+			if (animated) {return;}
+			if (this.className == 'on') {return;}
+			var myIndex = parseInt(this.getAttribute('index'));
+			var offset= -800*(myIndex-index);
+			animate(offset);
+			index = myIndex;
+			showButton();
+		}
+	}
+	function play(){
+		timer = setTimeout(function(){
+			next.onclick();
+			play();
+		},interval); 
+	}
+	function stop(){
+		clearTimeout(timer);
+	}
+	container.onmouseover = function(){
+		prev.style.display = next.style.display = 'block';
+		stop();
+	}
+	container.onmouseout = function(){
+		prev.style.display = next.style.display = 'none';
+		play();
+	}
+	play();
+
+</script>
+</html>
